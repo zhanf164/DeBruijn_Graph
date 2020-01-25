@@ -54,16 +54,12 @@ class DeBruijnGraph():
         pass
         
 def DrawGraph(DeBruijnObj):
-    new_edges = []
-    weights = []
+    dot = Digraph()
     for key, value in DeBruijnObj.edges.items():
         for edg, weight in zip(value[0], value[1]):
-            new_edges.append((key, edg))
-            weights.append(weight)
-    dot = Digraph()
+            dot.edge(key, edg, label=str(weight))
     for node in DeBruijnObj.nodes:
         dot.node(node)
-    for edge, weight in zip(new_edges, weights):
-        dot.edge(edge[0], edge[1], label=str(weight))
+
     dot.render(view=True)
     
