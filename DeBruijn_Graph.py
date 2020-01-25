@@ -6,17 +6,17 @@ Created on Fri Jan 24 22:48:06 2020
 @author: zach
 """
 
-import networkx as nx
-import matplotlib.pyplot as plt
+
 from graphviz import Digraph
+
 
 class DeBruijnGraph():
     
-    def __init__(self, reads):
+    def __init__(self, reads, klength):
         self.nodes = []
         self.edges = {}
-        
-        
+        self.kmers = self.Generate_Kmers(reads, klength)
+        self.Graph = self.AddtoGraph(self.kmers)
     
     
     def Generate_Kmers(self, reads, klength):
@@ -26,7 +26,8 @@ class DeBruijnGraph():
                 kmers.append(read[i:i+klength])
                 
         return kmers    
-    
+
+
     def AddtoGraph(self, kmers):
         for kmer in kmers:
             leftmer = kmer[:-1]
@@ -40,27 +41,29 @@ class DeBruijnGraph():
             else:
                 self.nodes.append(rightmer)
             if leftmer in self.edges:
-                self.edges[leftmer].append(rightmer)
+                if rightmer in self.edges[leftmer][0]:
+                    ind_rightmer = self.edges[leftmer][0].index(rightmer)
+                    self.edges[leftmer][1][ind_rightmer] = self.edges[leftmer][1][ind_rightmer] + 1
+                else:
+                    self.edges[leftmer][0].append(rightmer)
+                    self.edges[leftmer][1].append(1)
             else:
-                self.edges[leftmer] = [rightmer]
+                self.edges[leftmer] = [[rightmer], [1]]
         
-    
-    def EulerianWalk(self, nodes, edges):
+    def WalkGraph(self, edges, nodes):
         pass
-    
-    
-    
-    
+        
 def DrawGraph(DeBruijnObj):
     new_edges = []
+    weights = []
     for key, value in DeBruijnObj.edges.items():
-        for val in value:
-            new_edges.append((key, val))
+        for edg, weight in zip(value[0], value[1]):
+            new_edges.append((key, edg))
+            weights.append(weight)
     dot = Digraph()
     for node in DeBruijnObj.nodes:
         dot.node(node)
-    dot.edges(new_edges)
+    for edge, weight in zip(new_edges, weights):
+        dot.edge(edge[0], edge[1], label=str(weight))
     dot.render(view=True)
-    
-
     
