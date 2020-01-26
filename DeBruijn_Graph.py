@@ -16,8 +16,8 @@ class DeBruijnGraph():
         self.nodes = []
         self.edges = {}
         self.kmers = self.Generate_Kmers(reads, klength)
-        self.Graph = self.AddtoGraph(self.kmers)
-    
+        self.rights, self.lefts = self.AddtoGraph(self.kmers)
+        self.isEulerian = self.CheckifEulerian(self.rights, self.lefts)
     
     def Generate_Kmers(self, reads, klength):
         kmers = []
@@ -29,6 +29,8 @@ class DeBruijnGraph():
 
 
     def AddtoGraph(self, kmers):
+        lefts = set()
+        rights = set()
         for kmer in kmers:
             leftmer = kmer[:-1]
             rightmer = kmer[1:]
@@ -49,17 +51,27 @@ class DeBruijnGraph():
                     self.edges[leftmer][1].append(1)
             else:
                 self.edges[leftmer] = [[rightmer], [1]]
+            rights.add(rightmer)
+            lefts.add(leftmer)
+        return rights, lefts
+        
+    def CheckifEulerian(self, rights, lefts):
+        if len(rights ^ lefts) == 2:
+            return True
+        return False
+        
         
     def WalkGraph(self, edges, nodes):
         pass
         
-def DrawGraph(DeBruijnObj):
-    dot = Digraph()
-    for key, value in DeBruijnObj.edges.items():
-        for edg, weight in zip(value[0], value[1]):
-            dot.edge(key, edg, label=str(weight))
-    for node in DeBruijnObj.nodes:
-        dot.node(node)
-
-    dot.render(view=True)
+    def DrawGraph(self):
+        dot = Digraph()
+        for key, value in self.edges.items():
+            for edg, weight in zip(value[0], value[1]):
+                dot.edge(key, edg, label=str(weight))
+        for node in self.nodes:
+            dot.node(node)
+    
+        dot.render(view=True)
+        
     
