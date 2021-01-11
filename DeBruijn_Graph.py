@@ -61,9 +61,6 @@ class DeBruijnGraph():
         return False
         
         
-    def WalkGraph(self, edges, nodes):
-        pass
-        
     def DrawGraph(self):
         dot = Digraph()
         for key, value in self.edges.items():
